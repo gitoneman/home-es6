@@ -3,7 +3,7 @@ var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
 var Account = new Schema({
-	time:Date,
+	time:String,
 	name:String,
 	money:Number	
 });

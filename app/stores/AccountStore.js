@@ -5,11 +5,19 @@ class AccountStore {
     constructor() {
         this.bindActions(AccountActions);
         this.list = [];
+        this.showModal = false;
         //write state
     }
 
     onGetListSuccess(data){
         this.list = data;
+    }
+    onAddCountSuccess(data) {
+        this.showModal = false;
+        AccountActions.getList();
+    }
+    onDelCountSuccess() {
+        AccountActions.getList();
     }
     onGetSuccess(data) {
         this.movies = data;

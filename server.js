@@ -104,8 +104,8 @@ app.get('/weather',router.weather.getWeather);
 app.post('/mail',router.mail.sendMail);
 
 app.get('/account',router.account.list);
-app.post('/account',router.account.add);
-app.delete('/account',router.account.del);
+app.post('/account/add',router.account.add);
+app.post('/account/del',router.account.del);
 
 app.use(function(err, req, res, next) {
   	res.status(err.status || 500);

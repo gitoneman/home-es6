@@ -19,7 +19,7 @@ var AccountActions = (function () {
     function AccountActions() {
         _classCallCheck(this, AccountActions);
 
-        this.generateActions('getListSuccess', 'getFail');
+        this.generateActions('getListSuccess', 'addCountSuccess', 'delCountSuccess');
     }
 
     _createClass(AccountActions, [{
@@ -29,6 +29,44 @@ var AccountActions = (function () {
 
             $.ajax({ type: "get", url: "/account" }).done(function (data) {
                 _this.actions.getListSuccess(data);
+            });
+        }
+    }, {
+        key: 'addCount',
+        value: function addCount(value) {
+            var _this2 = this;
+
+            $.ajax({
+                url: '/account/add',
+                type: 'post',
+                data: value
+            }).done(function (data) {
+                if (data.code == 0) {
+                    _this2.actions.addCountSuccess(data.data);
+                    toastr.success("新增成功！");
+                } else {
+                    toastr.error("新增不成功！");
+                }
+            });
+        }
+    }, {
+        key: 'delCount',
+        value: function delCount(id) {
+            var _this3 = this;
+
+            $.ajax({
+                url: "/account/del",
+                type: "post",
+                data: {
+                    id: id
+                }
+            }).done(function (data) {
+                if (data.code == 0) {
+                    _this3.actions.delCountSuccess();
+                    toastr.success("删除成功！");
+                } else {
+                    toastr.error("删除不成功！");
+                }
             });
         }
     }]);
@@ -565,6 +603,45 @@ var _actionsAccountActions2 = _interopRequireDefault(_actionsAccountActions);
 
 var _reactBootstrap = require("react-bootstrap");
 
+var t = require('tcomb-form');
+var Form = t.form.Form;
+
+var fields = {
+	name: t.Str,
+	money: t.Number
+};
+
+var options = {
+	fields: {
+		name: {
+			label: "名称",
+			type: 'text',
+			hasError: false,
+			error: function error(v) {
+				return "不能为空";
+			},
+			help: "填写用途或收入来源"
+		},
+		money: {
+			label: "金额",
+			type: 'text',
+			hasError: false,
+			error: function error(v) {
+				if (!v) {
+					return "不能为空";
+				}
+				if (typeof v != "number") {
+					return "必须为数字";
+				} else {
+					return "";
+				}
+			},
+			help: "填写金额大小"
+		}
+	}
+
+};
+
 var account = (function (_React$Component) {
 	_inherits(account, _React$Component);
 
@@ -574,6 +651,10 @@ var account = (function (_React$Component) {
 		_get(Object.getPrototypeOf(account.prototype), "constructor", this).call(this, props);
 		this.state = _storesAccountStore2["default"].getState();
 		this.onChange = this.onChange.bind(this);
+		this.close = this.close.bind(this);
+		this.open = this.open.bind(this);
+		this.save = this.save.bind(this);
+		this.del = this.del.bind(this);
 	}
 
 	_createClass(account, [{
@@ -597,6 +678,7 @@ var account = (function (_React$Component) {
 	}, {
 		key: "render",
 		value: function render() {
+			var del = this.del;
 			var body = this.state.list.map(function (item) {
 				return _react2["default"].createElement(
 					"tr",
@@ -619,10 +701,27 @@ var account = (function (_React$Component) {
 					_react2["default"].createElement(
 						"td",
 						null,
-						"删除"
+						_react2["default"].createElement(
+							_reactBootstrap.OverlayTrigger,
+							{ trigger: "click", rootClose: true, placement: "left", overlay: _react2["default"].createElement(
+									_reactBootstrap.Popover,
+									{ title: "确定要删除吗" },
+									_react2["default"].createElement(
+										"a",
+										{ href: "javascript://", "data-dbid": item._id, onClick: del },
+										"确定删除"
+									)
+								) },
+							_react2["default"].createElement(
+								"a",
+								{ href: "javascript://" },
+								"删除"
+							)
+						)
 					)
 				);
 			});
+			var a = t.struct(fields);
 			return _react2["default"].createElement(
 				"div",
 				{ className: "g-cnt" },
@@ -634,7 +733,7 @@ var account = (function (_React$Component) {
 						{ className: "account-search" },
 						_react2["default"].createElement(
 							_reactBootstrap.Button,
-							{ className: "pull-right", bsStyle: "primary" },
+							{ className: "pull-right", bsStyle: "primary", onClick: this.open },
 							"新增"
 						)
 					),
@@ -667,7 +766,7 @@ var account = (function (_React$Component) {
 									),
 									_react2["default"].createElement(
 										"th",
-										null,
+										{ style: { "width": 50 } },
 										"操作"
 									)
 								)
@@ -678,22 +777,75 @@ var account = (function (_React$Component) {
 								body
 							)
 						)
+					),
+					this.state.list.length != 0 ? "" : _react2["default"].createElement(
+						"div",
+						{ className: "text-center" },
+						"暂无数据！"
 					)
 				),
 				_react2["default"].createElement(
 					_reactBootstrap.Modal,
-					{ show: false, onHide: this.close },
+					{ show: this.state.showModal, onHide: this.close },
 					_react2["default"].createElement(
 						_reactBootstrap.Modal.Header,
 						null,
 						_react2["default"].createElement(
 							_reactBootstrap.Modal.Title,
 							null,
-							"Modal heading"
+							"新增开支"
+						)
+					),
+					_react2["default"].createElement(
+						_reactBootstrap.Modal.Body,
+						null,
+						_react2["default"].createElement(Form, {
+							type: a,
+							ref: "form",
+							options: options })
+					),
+					_react2["default"].createElement(
+						_reactBootstrap.Modal.Footer,
+						null,
+						_react2["default"].createElement(
+							_reactBootstrap.Button,
+							{ onClick: this.save },
+							"保存"
+						),
+						_react2["default"].createElement(
+							_reactBootstrap.Button,
+							{ onClick: this.close },
+							"关闭"
 						)
 					)
 				)
 			);
+		}
+	}, {
+		key: "close",
+		value: function close() {
+			this.setState({ showModal: false });
+		}
+	}, {
+		key: "open",
+		value: function open() {
+			this.setState({ showModal: true });
+		}
+	}, {
+		key: "save",
+		value: function save() {
+			var value = this.refs.form.getValue();
+			if (value) {
+				_actionsAccountActions2["default"].addCount(value);
+			}
+		}
+	}, {
+		key: "del",
+		value: function del(e) {
+			var target = e.target;
+			var id = target.dataset.dbid;
+			console.log(id);
+			_actionsAccountActions2["default"].delCount(id);
 		}
 	}]);
 
@@ -703,7 +855,7 @@ var account = (function (_React$Component) {
 exports["default"] = account;
 module.exports = exports["default"];
 
-},{"../actions/AccountActions":1,"../stores/AccountStore":20,"react":497,"react-bootstrap":126}],12:[function(require,module,exports){
+},{"../actions/AccountActions":1,"../stores/AccountStore":20,"react":497,"react-bootstrap":126,"tcomb-form":498}],12:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1248,67 +1400,6 @@ exports["default"] = movies;
 module.exports = exports["default"];
 
 },{"../actions/MoviesActions":4,"../stores/MoviesStore":23,"react":497}],16:[function(require,module,exports){
-// var React = require('react');
-// var Router = require('react-router'); // or var Router = ReactRouter; in browsers
-// var Link = Router.Link;
-// var IndexLink = Router.IndexLink;
-// var Glyphicon = require('react-bootstrap').Glyphicon;
-
-// var accordionItem = React.createClass({
-// 	getInitialState: function() {
-// 		return {
-
-// 		};
-// 	},
-// 	componentWillMount: function() {
-
-// 	},
-// 	componentWillUnmount: function() {
-
-// 	},
-// 	render: function() {
-// 		var head = this.props.head;
-// 		var data = this.props.data;
-
-// 		var menus = [];
-
-// 		for (var i = 0; i < data.length; i++) {
-// 			if(data[i].href == "movies"){
-// 				menus.push(<li><IndexLink to="/">{data[i].name}</IndexLink></li>)
-// 			}else{
-// 				menus.push(<li><Link to={"/" + data[i].href}>{data[i].name}</Link></li>);
-// 			}
-// 		};
-
-// 		return (
-// 			<div className={ this.props.active ? "open accordion-item" : "accordion-item" }>
-// 				<div className="accordion-item-head" onClick={this._clickHead}>
-// 					<Glyphicon glyph="th-list" className="item-logo"/>
-// 					{head}
-// 					{
-// 						this.props.active ? <Glyphicon glyph="chevron-up" className="f-fr"/> : <Glyphicon glyph="chevron-down" className="f-fr"/>
-// 					}
-// 				</div>
-// 				<ul className='accordion-item-content'>
-// 					{menus}
-// 				</ul>
-// 			</div>
-// 		);
-// 	},
-
-// 	_clickHead:function(){
-// 		var active = !this.props.active;
-
-// 		var head = active ? this.props.head : null;
-// 		this.props.onclick({
-// 			head:head
-// 		});
-// 	}
-
-// });
-
-// module.exports = accordionItem;
-
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1795,6 +1886,7 @@ var AccountStore = (function () {
 
         this.bindActions(_actionsAccountActions2["default"]);
         this.list = [];
+        this.showModal = false;
         //write state
     }
 
@@ -1802,6 +1894,17 @@ var AccountStore = (function () {
         key: "onGetListSuccess",
         value: function onGetListSuccess(data) {
             this.list = data;
+        }
+    }, {
+        key: "onAddCountSuccess",
+        value: function onAddCountSuccess(data) {
+            this.showModal = false;
+            _actionsAccountActions2["default"].getList();
+        }
+    }, {
+        key: "onDelCountSuccess",
+        value: function onDelCountSuccess() {
+            _actionsAccountActions2["default"].getList();
         }
     }, {
         key: "onGetSuccess",

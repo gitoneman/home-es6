@@ -1,4 +1,6 @@
 var Account = require('../models/account');
+var moment = require('moment');
+
 module.exports = {
 	list:function(req,res){
 		Account.find()
@@ -9,17 +11,27 @@ module.exports = {
 	add:function(req,res){
 		var name = req.body.name;
 		var money = req.body.money;
-		var time = new Date();
-
-		name = "1234",
-		money = "25";
+		var time = moment().format("YYYY-MM-DD h:mm:ss");
 		
-		console.log(req.body)
 		Account.create({time:time,name:name,money:money},function(){
-			res.send("add account")
+			res.send({
+				code: 0,
+				data: {
+					name: name,
+					money: money,
+					time: time
+				}
+			})
 		})
 	},
 	del:function(req,res){
+		var id = req.body.id;
 
+		Account.findOne({_id:id},function(err,doc){		
+			doc.remove(function(){
+				res.send({code:0,message:"删除成功！"});
+			});
+			
+		})
 	}
 }
