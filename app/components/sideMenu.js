@@ -6,7 +6,11 @@ import _ from "underscore";
 function getInit(){
 	var hash = window.location.hash.slice(2);
 
+
 	for(var i in menu){
+		if(hash == ""){
+			return i;
+		}
 		var arr = [];
 
 		_.each(menu[i],function(item){

@@ -11,7 +11,7 @@ module.exports = {
 	add:function(req,res){
 		var name = req.body.name;
 		var money = req.body.money;
-		var time = moment().format("YYYY-MM-DD h:mm:ss");
+		var time = new Date().getTime();
 		
 		Account.create({time:time,name:name,money:money},function(){
 			res.send({

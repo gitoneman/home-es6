@@ -2,6 +2,7 @@ import React from "react";
 import AccountStore from "../stores/AccountStore";
 import AccountActions from "../actions/AccountActions";
 import {Button,Modal,OverlayTrigger,Popover} from "react-bootstrap";
+import moment from "moment";
 var t = require('tcomb-form');
 var Form = t.form.Form;
 
@@ -69,7 +70,7 @@ class account extends React.Component {
   		var body = this.state.list.map(function(item){
 			return (
 				<tr dbid={item._id}>
-					<td>{item.time}</td>
+					<td>{ moment(item.time).format("YYYY-MM-DD HH:mm:ss")}</td>
 					<td>{item.name}</td>
 					<td>{item.money}</td>
 					<td>
@@ -115,7 +116,7 @@ class account extends React.Component {
 						options={options} />
 		          	</Modal.Body>
 		          	<Modal.Footer>
-		            	<Button onClick={this.save}>保存</Button>
+		            	<Button bsStyle="primary" onClick={this.save}>保存</Button>
 		            	<Button onClick={this.close}>关闭</Button>
 		          	</Modal.Footer>
 				</Modal>

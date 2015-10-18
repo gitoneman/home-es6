@@ -18,14 +18,13 @@ class accordionItem extends React.Component {
   	render() {
 		var head = this.props.head;
 		var data = this.props.data;
-
 		var menus = [];
 
 		for (var i = 0; i < data.length; i++) {
 			if(data[i].href == "movies"){
-				menus.push(<li><IndexLink to="/">{data[i].name}</IndexLink></li>)
+				menus.push(<li><IndexLink to="/" activeClassName="active">{data[i].name}</IndexLink></li>)
 			}else{
-				menus.push(<li><Link to={"/" + data[i].href}>{data[i].name}</Link></li>);
+				menus.push(<li><Link to={"/" + data[i].href} activeClassName="active">{data[i].name}</Link></li>);
 			}
 		};
 
